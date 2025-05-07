@@ -3,6 +3,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 import os
 from pyunpack import Archive
 import shutil
+from dotenv import load_dotenv
 import asyncio
 
 DOWNLOAD_DIR = "downloads"
@@ -42,9 +43,13 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
         shutil.rmtree(EXTRACT_DIR)
         os.makedirs(EXTRACT_DIR, exist_ok=True)
 
-# ✅ NO async run — just call .run_polling() directly
 def main():
-    application = ApplicationBuilder().token("7643392324:AAHb-GVc0xVeTj4gHGcxE4o0ataJsI9w0Go").build()
+    load_dotenv()
+    token = os.getenv("BOT_TOKEN")
+    if not token:
+        raise ValueError("BOT_TOKEN not found in .env")
+
+    application = ApplicationBuilder().token(token).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.Document.ALL, handle_document))
 
